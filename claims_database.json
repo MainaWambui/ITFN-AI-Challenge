@@ -419,5 +419,209 @@
         "note": "Inferred hold for review/decision"
       }
     ]
+  },
+  {
+    "claim_id": "CLAIM-019",
+    "submitted_by": "Peter Mwangi",
+    "user_role": "Client",
+    "submission_time": "2025-09-22T14:45:04.623552",
+    "claim_data": {
+      "claimant_name": "Peter Mwangi",
+      "vehicle_registration": "KMF-001A",
+      "accident_date": "2025-09-16",
+      "accident_time": "14:37:00",
+      "accident_location": "Thika",
+      "accident_description": "Hit and run",
+      "evidence_files": {
+        "evidence": [
+          "Example Photo.jpeg"
+        ],
+        "witness_statement": "Witness statement1.docx"
+      },
+      "coverage": {
+        "limits_of_liability": {
+          "third_party_bodily_injury": "Unlimited",
+          "third_party_property_damage": "KES 2,000,000",
+          "passenger_legal_liability": "KES 3,000,000 per person, KES 20,000,000 per event",
+          "towing_charges": "KES 10,000",
+          "repair_authority": "KES 20,000",
+          "accidental_medical_expenses": "KES 20,000"
+        },
+        "excesses": {
+          "material_damage": {
+            "rate": 0.025,
+            "minimum_kes": 7500
+          },
+          "theft_and_recovery": {
+            "rate": 0.025,
+            "minimum_kes": 7500
+          },
+          "total_theft": {
+            "rate": 0.1,
+            "minimum_kes": 15000
+          },
+          "third_party_property_damage": 5000
+        }
+      }
+    },
+    "status": "Approved",
+    "fraud_analysis": {
+      "fraud_score": 0.1544501046968958,
+      "risk_level": "LOW",
+      "final_recommendation": "APPROVE CLAIM",
+      "policy_valid": true,
+      "telematics_coverage": true,
+      "red_flags": [],
+      "recommendations": [],
+      "analysis_time": "2025-09-22T14:45:01.124185",
+      "duplicate_analysis": {
+        "has_duplicates": false,
+        "red_flags": [],
+        "duplicate_count": 0
+      },
+      "similarity_analysis": {
+        "high_similarity": false,
+        "red_flags": [],
+        "similar_claims_count": 0
+      },
+      "pattern_analysis": {
+        "suspicious_patterns": false,
+        "red_flags": []
+      }
+    },
+    "payout_suggestion": {
+      "items": [
+        {
+          "item": "Base Payout (Other Scenarios)",
+          "amount": 20000,
+          "note": "Default base payout"
+        },
+        {
+          "item": "Repair Authority",
+          "amount": 0,
+          "note": "To be issued to approved garage"
+        }
+      ],
+      "total_amount": 20000
+    },
+    "decision_time": "2025-09-22T14:46:12.629421",
+    "decision_reason": "APPROVE CLAIM",
+    "payout_status": "CAPTURED",
+    "payout_history": [
+      {
+        "timestamp": "2025-09-22T14:45:04.625716",
+        "action": "AUTHORIZE",
+        "note": "Intake authorization"
+      },
+      {
+        "timestamp": "2025-09-22T14:46:12.629350",
+        "action": "CAPTURE",
+        "note": "Auto-capture on approval"
+      }
+    ],
+    "analysis_started_at": "2025-09-22T14:45:04.623592",
+    "earliest_decision_time": "2025-09-22T14:46:19.623489"
+  },
+  {
+    "claim_id": "CLAIM-020",
+    "submitted_by": "Stephen Njoroge",
+    "user_role": "Client",
+    "submission_time": "2025-09-22T14:59:01.261812",
+    "claim_data": {
+      "claimant_name": "Stephen Njoroge",
+      "vehicle_registration": "KMF-008H",
+      "accident_date": "2025-09-22",
+      "accident_time": "14:57:00",
+      "accident_location": "Thogoto",
+      "accident_description": "Hit and run",
+      "evidence_files": {
+        "evidence": [
+          "Example Photo.jpeg"
+        ],
+        "witness_statement": "Witness statement1.docx"
+      },
+      "coverage": {
+        "limits_of_liability": {
+          "third_party_bodily_injury": "Unlimited",
+          "third_party_property_damage": "KES 2,000,000",
+          "passenger_legal_liability": "KES 3,000,000 per person, KES 20,000,000 per event",
+          "towing_charges": "KES 10,000",
+          "repair_authority": "KES 20,000",
+          "accidental_medical_expenses": "KES 20,000"
+        },
+        "excesses": {
+          "material_damage": {
+            "rate": 0.025,
+            "minimum_kes": 7500
+          },
+          "theft_and_recovery": {
+            "rate": 0.025,
+            "minimum_kes": 7500
+          },
+          "total_theft": {
+            "rate": 0.1,
+            "minimum_kes": 15000
+          },
+          "third_party_property_damage": 5000
+        }
+      }
+    },
+    "status": "Approved",
+    "fraud_analysis": {
+      "fraud_score": 0.05383591898056328,
+      "risk_level": "LOW",
+      "final_recommendation": "APPROVE CLAIM",
+      "policy_valid": true,
+      "telematics_coverage": true,
+      "red_flags": [],
+      "recommendations": [],
+      "analysis_time": "2025-09-22T14:59:02.890785",
+      "duplicate_analysis": {
+        "has_duplicates": false,
+        "red_flags": [],
+        "duplicate_count": 0
+      },
+      "similarity_analysis": {
+        "high_similarity": false,
+        "red_flags": [],
+        "similar_claims_count": 0
+      },
+      "pattern_analysis": {
+        "suspicious_patterns": false,
+        "red_flags": []
+      }
+    },
+    "payout_suggestion": {
+      "items": [
+        {
+          "item": "Base Payout (Other Scenarios)",
+          "amount": 20000,
+          "note": "Default base payout"
+        },
+        {
+          "item": "Repair Authority",
+          "amount": 0,
+          "note": "To be issued to approved garage"
+        }
+      ],
+      "total_amount": 20000
+    },
+    "decision_time": "2025-09-22T15:00:09.924973",
+    "decision_reason": "APPROVE CLAIM",
+    "payout_status": "CAPTURED",
+    "payout_history": [
+      {
+        "timestamp": "2025-09-22T14:59:01.269228",
+        "action": "AUTHORIZE",
+        "note": "Intake authorization"
+      },
+      {
+        "timestamp": "2025-09-22T15:00:09.924931",
+        "action": "CAPTURE",
+        "note": "Auto-capture on approval"
+      }
+    ],
+    "analysis_started_at": "2025-09-22T14:59:01.261844",
+    "earliest_decision_time": "2025-09-22T15:00:16.261776"
   }
 ]

@@ -919,10 +919,16 @@ This report contains an AI-powered analysis of photographic evidence submitted f
                 content = str(uploaded_file.read(), "utf-8")
             elif file_type in ['doc', 'docx']:
                 if not DOCX_AVAILABLE:
-                    return f"**Incident Report: {claim_id}**\n\n**Error:** python-docx is not available. Please install it with: pip install python-docx\n\n*Word document processing requires python-docx library.*"
-                # For DOCX files
-                doc = Document(uploaded_file)
-                content = "\n".join([paragraph.text for paragraph in doc.paragraphs])
+                    # Try to read as plain text as fallback
+                    try:
+                        content = str(uploaded_file.read(), "utf-8")
+                    except:
+                        content = f"**Incident Report: {claim_id}**\n\n**Error:** python-docx is not available. Please install it with: pip install python-docx\n\n*Word document processing requires python-docx library.*"
+                        return content
+                else:
+                    # For DOCX files
+                    doc = Document(uploaded_file)
+                    content = "\n".join([paragraph.text for paragraph in doc.paragraphs])
             elif file_type == 'pdf':
                 if not PDF_AVAILABLE:
                     return f"**Incident Report: {claim_id}**\n\n**Error:** PyPDF2 is not available. Please install it with: pip install PyPDF2\n\n*PDF processing requires PyPDF2 library.*"
@@ -1265,22 +1271,10 @@ class RoleBasedApp:
                         if uploaded_file.type.startswith('image/'):
                             col_img, col_analysis = st.columns([1, 2])
                             with col_img:
-                                st.image(uploaded_file, caption=f"Photo {i+1}", use_column_width=True)
+                                st.image(uploaded_file, caption=f"Photo {i+1}", use_container_width=True)
                             with col_analysis:
-                                if st.button(f"Analyze Photo {i+1}", key=f"analyze_photo_{i}"):
-                                    with st.spinner("Analyzing photo with AI..."):
-                                        # Generate a temporary claim ID for analysis
-                                        temp_claim_id = f"TEMP-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-                                        analysis_result = self.processor.analyze_uploaded_photo(uploaded_file, temp_claim_id)
-                                        st.markdown("### AI Analysis Result:")
-                                        st.markdown(analysis_result)
-                                        
-                                        # Option to save analysis
-                                        if st.button(f"Save Analysis as Evidence", key=f"save_analysis_{i}"):
-                                            if self.processor.save_evidence_analysis(temp_claim_id, analysis_result):
-                                                st.success(f"Analysis saved as evidence-analysis/{temp_claim_id}.md")
-                                            else:
-                                                st.error("Failed to save analysis")
+                                st.info(f"**File:** {uploaded_file.name}\n**Size:** {uploaded_file.size} bytes")
+                                st.write("Photo analysis will be available after form submission.")
             
             with col_e2:
                 witness_upload = st.file_uploader(
@@ -1293,24 +1287,8 @@ class RoleBasedApp:
                 # Enhanced document processing section
                 if witness_upload:
                     st.subheader("📄 Document Processing")
-                    col_doc, col_process = st.columns([1, 2])
-                    with col_doc:
-                        st.info(f"**File:** {witness_upload.name}\n**Size:** {witness_upload.size} bytes")
-                    with col_process:
-                        if st.button("Process Document", key="process_document"):
-                            with st.spinner("Processing document..."):
-                                # Generate a temporary claim ID for processing
-                                temp_claim_id = f"TEMP-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-                                processed_result = self.processor.process_uploaded_document(witness_upload, temp_claim_id)
-                                st.markdown("### Processed Witness Statement:")
-                                st.markdown(processed_result)
-                                
-                                # Option to save processed statement
-                                if st.button("Save as Witness Statement", key="save_statement"):
-                                    if self.processor.save_witness_statement(temp_claim_id, processed_result):
-                                        st.success(f"Statement saved as witness-statements/{temp_claim_id}-NEW.md")
-                                    else:
-                                        st.error("Failed to save statement")
+                    st.info(f"**File:** {witness_upload.name}\n**Size:** {witness_upload.size} bytes")
+                    st.write("Document processing will be available after form submission.")
 
             submitted = st.form_submit_button("Submit Claim", use_container_width=True)
             if submitted:
@@ -1356,6 +1334,42 @@ class RoleBasedApp:
                                 }
                     except Exception:
                         pass
+
+                    # Generate witness statement and evidence analysis files automatically
+                    claim_id = self.processor.generate_next_claim_id()
+                    
+                    # Generate witness statement from uploaded document
+                    if witness_upload:
+                        try:
+                            witness_content = self.processor.process_uploaded_document(witness_upload, claim_id)
+                            self.processor.save_witness_statement(claim_id, witness_content)
+                        except Exception as e:
+                            st.warning(f"Could not process witness statement: {e}")
+                    
+                    # Generate evidence analysis from uploaded photos
+                    if evidence_uploads:
+                        try:
+                            evidence_content = f"# AI Evidence Analysis: {claim_id}\n\nThis report contains an AI-powered analysis of photographic evidence submitted for the claim.\n\n---\n\n"
+                            
+                            for i, uploaded_file in enumerate(evidence_uploads):
+                                if uploaded_file.type.startswith('image/'):
+                                    photo_analysis = self.processor.analyze_uploaded_photo(uploaded_file, f"{claim_id}-{i+1}")
+                                    evidence_content += photo_analysis + "\n\n---\n\n"
+                            
+                            evidence_content += "*Analysis generated by AI Evidence Processing System*"
+                            self.processor.save_evidence_analysis(claim_id, evidence_content)
+                        except Exception as e:
+                            st.warning(f"Could not process evidence analysis: {e}")
+                    
+                    # Show success message for file generation
+                    files_generated = []
+                    if witness_upload:
+                        files_generated.append(f"witness-statements/{claim_id}-NEW.md")
+                    if evidence_uploads:
+                        files_generated.append(f"evidence-analysis/{claim_id}.md")
+                    
+                    if files_generated:
+                        st.success(f"✅ Files generated automatically: {', '.join(files_generated)}")
 
                     # Policy check: vehicle registration must belong to authenticated client's policy
                     try:
@@ -1423,8 +1437,7 @@ class RoleBasedApp:
                             "If you need help sooner, call **+2547000000** or email **omicare@insuretechtest.com**. "
                             "See the [Customer Guidance](Customer_Guidance.md) for timelines and FAQs."
                         )
-                        # Save the claim and proceed with analysis
-                        claim_id = self.processor.generate_next_claim_id()
+                        # Use the already generated claim_id
                         wait_seconds = 75
                         earliest_dt = datetime.now() + timedelta(seconds=wait_seconds)
                         record = {
@@ -1530,8 +1543,7 @@ class RoleBasedApp:
                         return
 
                     else:
-                        # If not on hold, proceed with analysis directly
-                        claim_id = self.processor.generate_next_claim_id()
+                        # If not on hold, proceed with analysis directly (claim_id already generated)
                         wait_seconds = 75
                         earliest_dt = datetime.now() + timedelta(seconds=wait_seconds)
                         record = {
@@ -1629,6 +1641,52 @@ class RoleBasedApp:
                         except Exception:
                             pass
                         return
+
+        # Post-form analysis section (outside the form)
+        if evidence_uploads or witness_upload:
+            st.markdown("---")
+            st.subheader("🔍 Evidence Analysis Tools")
+            st.info("Use these tools to analyze your uploaded files after form submission.")
+            
+            # Photo analysis section
+            if evidence_uploads:
+                st.markdown("### 📸 Photo Analysis")
+                for i, uploaded_file in enumerate(evidence_uploads):
+                    if uploaded_file.type.startswith('image/'):
+                        col_img, col_analysis = st.columns([1, 2])
+                        with col_img:
+                            st.image(uploaded_file, caption=f"Photo {i+1}", use_container_width=True)
+                        with col_analysis:
+                            st.info(f"**File:** {uploaded_file.name}\n**Size:** {uploaded_file.size} bytes")
+                            if st.button(f"Analyze Photo {i+1}", key=f"analyze_photo_{i}"):
+                                with st.spinner("Analyzing photo with AI..."):
+                                    temp_claim_id = f"TEMP-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+                                    analysis_result = self.processor.analyze_uploaded_photo(uploaded_file, temp_claim_id)
+                                    st.markdown("### AI Analysis Result:")
+                                    st.markdown(analysis_result)
+                                    
+                                    if st.button(f"Save Analysis", key=f"save_analysis_{i}"):
+                                        if self.processor.save_evidence_analysis(temp_claim_id, analysis_result):
+                                            st.success(f"Analysis saved as evidence-analysis/{temp_claim_id}.md")
+                                        else:
+                                            st.error("Failed to save analysis")
+            
+            # Document processing section
+            if witness_upload:
+                st.markdown("### 📄 Document Processing")
+                st.info(f"**File:** {witness_upload.name}\n**Size:** {witness_upload.size} bytes")
+                if st.button("Process Document", key="process_document"):
+                    with st.spinner("Processing document..."):
+                        temp_claim_id = f"TEMP-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+                        processed_result = self.processor.process_uploaded_document(witness_upload, temp_claim_id)
+                        st.markdown("### Processed Witness Statement:")
+                        st.markdown(processed_result)
+                        
+                        if st.button("Save Statement", key="save_statement"):
+                            if self.processor.save_witness_statement(temp_claim_id, processed_result):
+                                st.success(f"Statement saved as witness-statements/{temp_claim_id}-NEW.md")
+                            else:
+                                st.error("Failed to save statement")
 
     def create_claim_status_page(self) -> None:
         st.header("📊 My Claims Status")
@@ -2641,6 +2699,13 @@ class RoleBasedApp:
                                     st.success(f"Analysis saved as evidence-analysis/{temp_claim_id}.md")
                                 else:
                                     st.error("Failed to save analysis")
+                            
+                            # Auto-save option
+                            if st.button("Auto-Save Analysis", key="auto_save_evidence_analysis"):
+                                if self.processor.save_evidence_analysis(temp_claim_id, analysis_result):
+                                    st.success(f"✅ Analysis automatically saved as evidence-analysis/{temp_claim_id}.md")
+                                else:
+                                    st.error("Failed to auto-save analysis")
             
             with col_upload2:
                 st.markdown("### Document Processing")
@@ -2666,6 +2731,13 @@ class RoleBasedApp:
                                     st.success(f"Statement saved as witness-statements/{temp_claim_id}-NEW.md")
                                 else:
                                     st.error("Failed to save statement")
+                            
+                            # Auto-save option
+                            if st.button("Auto-Save Statement", key="auto_save_evidence_statement"):
+                                if self.processor.save_witness_statement(temp_claim_id, processed_result):
+                                    st.success(f"✅ Statement automatically saved as witness-statements/{temp_claim_id}-NEW.md")
+                                else:
+                                    st.error("Failed to auto-save statement")
             
             st.markdown("---")
             
