@@ -1,0 +1,95 @@
+[
+  {
+    "product_id": "BSC-001",
+    "product_name": "BodaSure Comprehensive (PSV)",
+    "description": "Premium comprehensive coverage for commercial bodaboda operators, including special perils and optional rider benefits.",
+    "premium_calculation": {
+      "rate": 0.05,
+      "minimum_kes": 5000,
+      "levies_included": true
+    },
+    "optional_addons": {
+      "personal_accident_rider": {
+        "additional_premium_kes": 2000,
+        "benefits": {
+          "death": "KES 250,000",
+          "permanent_total_disability": "KES 250,000",
+          "medical_expenses": "KES 50,000"
+        }
+      }
+    },
+    "limits_of_liability": {
+      "third_party_bodily_injury": "Unlimited",
+      "third_party_property_damage": "KES 2,000,000",
+      "passenger_legal_liability": "KES 3,000,000 per person, KES 20,000,000 per event",
+      "towing_charges": "KES 10,000",
+      "repair_authority": "KES 20,000",
+      "accidental_medical_expenses": "KES 20,000"
+    },
+    "excesses": {
+      "material_damage": {
+        "rate": 0.025,
+        "minimum_kes": 7500
+      },
+      "theft_and_recovery": {
+        "rate": 0.025,
+        "minimum_kes": 7500
+      },
+      "total_theft": {
+        "rate": 0.10,
+        "minimum_kes": 15000
+      },
+      "third_party_property_damage": 5000
+    },
+    "special_clauses": [
+      "Agreed value clause",
+      "Riot, strike, and civil commotion included",
+      "Terrorism and political violence included",
+      "No-blame, no-excess clause (where applicable)",
+      "Excluding passenger liability to the insured’s household"
+    ]
+  },
+  {
+    "product_id": "BSTP-002",
+    "product_name": "BodaSure Third-Party Plus",
+    "description": "Covers third-party risks as required by law, plus a basic personal accident cover for the rider.",
+    "premium_calculation": {
+      "rate": 0.03,
+      "minimum_kes": 3000,
+      "levies_included": true
+    },
+    "optional_addons": {},
+    "limits_of_liability": {
+      "third_party_bodily_injury": "Unlimited",
+      "third_party_property_damage": "KES 1,000,000",
+      "passenger_legal_liability": "KES 1,000,000 per person, KES 5,000,000 per event"
+    },
+    "excesses": {
+      "third_party_property_damage": 2500
+    },
+    "special_clauses": [
+      "Kenya legal jurisdiction",
+      "Liability of passengers"
+    ]
+  },
+  {
+    "product_id": "BSE-003",
+    "product_name": "BodaSure Economy (TPO)",
+    "description": "Basic, legally-mandated third-party only (TPO) coverage.",
+    "premium_calculation": {
+      "fixed_premium_kes": 5000,
+      "levies_included": true
+    },
+    "optional_addons": {},
+    "limits_of_liability": {
+      "third_party_bodily_injury": "Unlimited",
+      "third_party_property_damage": "KES 500,000"
+    },
+    "excesses": {
+      "third_party_property_damage": 0
+    },
+    "special_clauses": [
+      "Kenya legal jurisdiction"
+    ]
+  }
+]

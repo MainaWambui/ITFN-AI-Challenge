@@ -1,0 +1,423 @@
+[
+  {
+    "claim_id": "CLAIM-001",
+    "submitted_by": "Peter Mwangi",
+    "user_role": "Client",
+    "submission_time": "2025-09-12T07:48:10Z",
+    "claim_data": {
+      "vehicle_registration": "",
+      "accident_date": "2025-09-12",
+      "accident_time": "07:48:10",
+      "accident_location": "Hit and run, Moi Avenue. Leg injured.",
+      "accident_description": "Hit and run, Moi Avenue. Leg injured.",
+      "evidence_files": {
+        "evidence": [],
+        "witness_statement": null
+      }
+    },
+    "status": "Requires Review",
+    "fraud_analysis": {
+      "fraud_score": 0.5070387570900102,
+      "risk_level": "MEDIUM",
+      "final_recommendation": "ENHANCED REVIEW REQUIRED",
+      "policy_valid": true,
+      "telematics_coverage": true,
+      "red_flags": [],
+      "recommendations": [],
+      "analysis_time": "2025-09-21T12:46:07.040735"
+    },
+    "decision_time": "2025-09-21T12:46:07.040785",
+    "decision_reason": "ENHANCED REVIEW REQUIRED",
+    "payout_suggestion": {
+      "items": [
+        {
+          "item": "Base Payout (Other Scenarios)",
+          "amount": 20000,
+          "note": "Default base payout"
+        },
+        {
+          "item": "Repair Authority",
+          "amount": 0,
+          "note": "To be issued to approved garage"
+        }
+      ],
+      "total_amount": 20000
+    },
+    "payout_status": "AUTHORIZED_ON_HOLD",
+    "payout_history": [
+      {
+        "timestamp": "2025-09-21T12:43:35.166329",
+        "action": "HOLD",
+        "note": "Inferred hold for review/decision"
+      }
+    ]
+  },
+  {
+    "claim_id": "CLAIM-017",
+    "submitted_by": "Peter Mwangi",
+    "user_role": "Client",
+    "submission_time": "2025-09-21T12:51:07.930139",
+    "claim_data": {
+      "claimant_name": "Peter Mwangi",
+      "vehicle_registration": "KMF-001A",
+      "accident_date": "2025-09-15",
+      "accident_time": "00:30:00",
+      "accident_location": "Westlands",
+      "accident_description": "Hit and run",
+      "evidence_files": {
+        "evidence": [
+          "CLAIM-001.md"
+        ],
+        "witness_statement": "CLAIM-001.md"
+      },
+      "coverage": {
+        "limits_of_liability": {
+          "third_party_bodily_injury": "Unlimited",
+          "third_party_property_damage": "KES 2,000,000",
+          "passenger_legal_liability": "KES 3,000,000 per person, KES 20,000,000 per event",
+          "towing_charges": "KES 10,000",
+          "repair_authority": "KES 20,000",
+          "accidental_medical_expenses": "KES 20,000"
+        },
+        "excesses": {
+          "material_damage": {
+            "rate": 0.025,
+            "minimum_kes": 7500
+          },
+          "theft_and_recovery": {
+            "rate": 0.025,
+            "minimum_kes": 7500
+          },
+          "total_theft": {
+            "rate": 0.1,
+            "minimum_kes": 15000
+          },
+          "third_party_property_damage": 5000
+        }
+      }
+    },
+    "status": "Approved",
+    "fraud_analysis": {
+      "fraud_score": 0.11355380529128595,
+      "risk_level": "LOW",
+      "final_recommendation": "APPROVE CLAIM",
+      "policy_valid": true,
+      "telematics_coverage": true,
+      "red_flags": [],
+      "recommendations": [],
+      "analysis_time": "2025-09-21T12:51:10.099319"
+    },
+    "payout_suggestion": {
+      "items": [
+        {
+          "item": "Base Payout (Other Scenarios)",
+          "amount": 20000,
+          "note": "Default base payout"
+        },
+        {
+          "item": "Repair Authority",
+          "amount": 0,
+          "note": "To be issued to approved garage"
+        }
+      ],
+      "total_amount": 20000
+    },
+    "decision_time": "2025-09-21T12:52:15.619088",
+    "decision_reason": "APPROVE CLAIM",
+    "payout_status": "CAPTURED",
+    "payout_history": [
+      {
+        "timestamp": "2025-09-21T12:51:07.931232",
+        "action": "AUTHORIZE",
+        "note": "Intake authorization"
+      },
+      {
+        "timestamp": "2025-09-21T12:52:15.619051",
+        "action": "CAPTURE",
+        "note": "Auto-capture on approval"
+      }
+    ],
+    "analysis_started_at": "2025-09-21T12:51:07.930169",
+    "earliest_decision_time": "2025-09-21T12:52:22.930094"
+  },
+  {
+    "claim_id": "CLAIM-018",
+    "submitted_by": "Peter Mwangi",
+    "user_role": "Client",
+    "submission_time": "2025-09-21T13:19:17.457125",
+    "claim_data": {
+      "claimant_name": "Peter Mwangi",
+      "vehicle_registration": "KMF-001A",
+      "accident_date": "2025-09-19",
+      "accident_time": "13:18:00",
+      "accident_location": "Westlands",
+      "accident_description": "Hit and run",
+      "evidence_files": {
+        "evidence": [
+          "CLAIM-001.md"
+        ],
+        "witness_statement": "CLAIM-001-NEW.md"
+      },
+      "coverage": {
+        "limits_of_liability": {
+          "third_party_bodily_injury": "Unlimited",
+          "third_party_property_damage": "KES 2,000,000",
+          "passenger_legal_liability": "KES 3,000,000 per person, KES 20,000,000 per event",
+          "towing_charges": "KES 10,000",
+          "repair_authority": "KES 20,000",
+          "accidental_medical_expenses": "KES 20,000"
+        },
+        "excesses": {
+          "material_damage": {
+            "rate": 0.025,
+            "minimum_kes": 7500
+          },
+          "theft_and_recovery": {
+            "rate": 0.025,
+            "minimum_kes": 7500
+          },
+          "total_theft": {
+            "rate": 0.1,
+            "minimum_kes": 15000
+          },
+          "third_party_property_damage": 5000
+        }
+      }
+    },
+    "status": "Rejected",
+    "fraud_analysis": {},
+    "payout_suggestion": {
+      "items": [
+        {
+          "item": "Base Payout (Other Scenarios)",
+          "amount": 20000,
+          "note": "Default base payout"
+        },
+        {
+          "item": "Repair Authority",
+          "amount": 0,
+          "note": "To be issued to approved garage"
+        }
+      ],
+      "total_amount": 20000
+    },
+    "decision_time": "2025-09-21T13:20:27.581659",
+    "decision_reason": null,
+    "payout_status": "AUTHORIZED_ON_HOLD",
+    "payout_history": [
+      {
+        "timestamp": "2025-09-21T13:19:17.460662",
+        "action": "AUTHORIZE",
+        "note": "Intake authorization"
+      },
+      {
+        "timestamp": "2025-09-21T13:20:27.581613",
+        "action": "HOLD",
+        "note": "Hold on rejection (await finance action)"
+      }
+    ],
+    "analysis_started_at": "2025-09-21T13:19:17.457252",
+    "earliest_decision_time": "2025-09-21T13:20:32.457039"
+  },
+  {
+    "claim_id": "CLAIM-002",
+    "submitted_by": "James Odhiambo",
+    "user_role": "Client",
+    "submission_time": "2025-09-12T07:48:55Z",
+    "claim_data": {
+      "vehicle_registration": "",
+      "accident_date": "2025-09-12",
+      "accident_time": "07:48:55",
+      "accident_location": "Accident with white Probox, arm broken.",
+      "accident_description": "Accident with white Probox, arm broken.",
+      "evidence_files": {
+        "evidence": [],
+        "witness_statement": null
+      }
+    },
+    "status": "Approved",
+    "fraud_analysis": {
+      "fraud_score": 0.09718833298829482,
+      "risk_level": "LOW",
+      "final_recommendation": "APPROVE CLAIM",
+      "policy_valid": true,
+      "telematics_coverage": true,
+      "red_flags": [],
+      "recommendations": [],
+      "analysis_time": "2025-09-21T13:35:00.601901",
+      "duplicate_analysis": {
+        "has_duplicates": false,
+        "red_flags": [],
+        "duplicate_count": 0
+      },
+      "similarity_analysis": {
+        "high_similarity": false,
+        "red_flags": [],
+        "similar_claims_count": 0
+      },
+      "pattern_analysis": {
+        "suspicious_patterns": false,
+        "red_flags": []
+      }
+    },
+    "decision_time": "2025-09-21T13:35:00.601967",
+    "decision_reason": "APPROVE CLAIM",
+    "payout_suggestion": {
+      "items": [
+        {
+          "item": "Base Payout (Other Scenarios)",
+          "amount": 20000,
+          "note": "Default base payout"
+        },
+        {
+          "item": "Repair Authority",
+          "amount": 0,
+          "note": "To be issued to approved garage"
+        }
+      ],
+      "total_amount": 20000
+    },
+    "payout_status": "AUTHORIZED_ON_HOLD",
+    "payout_history": [
+      {
+        "timestamp": "2025-09-21T13:34:43.034406",
+        "action": "HOLD",
+        "note": "Inferred hold for review/decision"
+      }
+    ]
+  },
+  {
+    "claim_id": "CLAIM-003",
+    "submitted_by": "David Kariuki",
+    "user_role": "Client",
+    "submission_time": "2025-09-12T07:49:45Z",
+    "claim_data": {
+      "vehicle_registration": "",
+      "accident_date": "2025-09-12",
+      "accident_time": "07:49:45",
+      "accident_location": "My bodaboda was hit, driver fled. Minor injuries.",
+      "accident_description": "My bodaboda was hit, driver fled. Minor injuries.",
+      "evidence_files": {
+        "evidence": [],
+        "witness_statement": null
+      }
+    },
+    "status": "Approved",
+    "fraud_analysis": {
+      "fraud_score": 0.026933085244429413,
+      "risk_level": "LOW",
+      "final_recommendation": "APPROVE CLAIM",
+      "policy_valid": true,
+      "telematics_coverage": true,
+      "red_flags": [],
+      "recommendations": [],
+      "analysis_time": "2025-09-21T13:35:11.018541",
+      "duplicate_analysis": {
+        "has_duplicates": false,
+        "red_flags": [],
+        "duplicate_count": 0
+      },
+      "similarity_analysis": {
+        "high_similarity": false,
+        "red_flags": [],
+        "similar_claims_count": 0
+      },
+      "pattern_analysis": {
+        "suspicious_patterns": false,
+        "red_flags": []
+      }
+    },
+    "decision_time": "2025-09-21T13:35:11.018599",
+    "decision_reason": "APPROVE CLAIM",
+    "payout_suggestion": {
+      "items": [
+        {
+          "item": "Base Payout (Other Scenarios)",
+          "amount": 20000,
+          "note": "Default base payout"
+        },
+        {
+          "item": "Repair Authority",
+          "amount": 0,
+          "note": "To be issued to approved garage"
+        }
+      ],
+      "total_amount": 20000
+    },
+    "payout_status": "AUTHORIZED_ON_HOLD",
+    "payout_history": [
+      {
+        "timestamp": "2025-09-21T13:35:06.182721",
+        "action": "HOLD",
+        "note": "Inferred hold for review/decision"
+      }
+    ]
+  },
+  {
+    "claim_id": "CLAIM-004",
+    "submitted_by": "Michael Wanjala",
+    "user_role": "Client",
+    "submission_time": "2025-09-12T07:50:30Z",
+    "claim_data": {
+      "vehicle_registration": "",
+      "accident_date": "2025-09-12",
+      "accident_time": "07:50:30",
+      "accident_location": "Hit by a speeding white car. Shoulder injury.",
+      "accident_description": "Hit by a speeding white car. Shoulder injury.",
+      "evidence_files": {
+        "evidence": [],
+        "witness_statement": null
+      }
+    },
+    "status": "Approved",
+    "fraud_analysis": {
+      "fraud_score": 0.1684476180528407,
+      "risk_level": "LOW",
+      "final_recommendation": "APPROVE CLAIM",
+      "policy_valid": true,
+      "telematics_coverage": true,
+      "red_flags": [],
+      "recommendations": [],
+      "analysis_time": "2025-09-21T13:37:47.349230",
+      "duplicate_analysis": {
+        "has_duplicates": false,
+        "red_flags": [],
+        "duplicate_count": 0
+      },
+      "similarity_analysis": {
+        "high_similarity": false,
+        "red_flags": [],
+        "similar_claims_count": 0
+      },
+      "pattern_analysis": {
+        "suspicious_patterns": false,
+        "red_flags": []
+      }
+    },
+    "decision_time": "2025-09-21T13:37:47.349321",
+    "decision_reason": "APPROVE CLAIM",
+    "payout_suggestion": {
+      "items": [
+        {
+          "item": "Base Payout (Other Scenarios)",
+          "amount": 20000,
+          "note": "Default base payout"
+        },
+        {
+          "item": "Repair Authority",
+          "amount": 0,
+          "note": "To be issued to approved garage"
+        }
+      ],
+      "total_amount": 20000
+    },
+    "payout_status": "AUTHORIZED_ON_HOLD",
+    "payout_history": [
+      {
+        "timestamp": "2025-09-21T13:35:27.743973",
+        "action": "HOLD",
+        "note": "Inferred hold for review/decision"
+      }
+    ]
+  }
+]
