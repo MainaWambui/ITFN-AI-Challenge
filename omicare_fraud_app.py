@@ -2039,110 +2039,115 @@ class RoleBasedApp:
 
         # Overview tab (Prioritized Cases)
         with tab_overview:
-            # Risk KPIs and prioritized cases from live portal database + dataset claims (CLAIM-001..016)
-            try:
-                claims_live = list(self.processor.claims_database)
-            except Exception:
-                claims_live = []
-
+            # Use the same unified claim processing logic as main KPIs
             rows: List[Dict] = []
             
-            # Get fraudulent/legitimate classification first
-            fraudulent_ids_ds = set()
-            legitimate_ids_ds = set()
+            # Get all claims from both sources (same logic as main KPIs)
+            dataset_claims = fraud_data.get("claims", [])
+            portal_claims = self.processor.claims_database
+            
+            # Get all claim IDs from both sources for complete processing
+            all_claim_ids = set()
+            for c in dataset_claims:
+                if c.get("claim_id"):
+                    all_claim_ids.add(c.get("claim_id"))
+            for c in portal_claims:
+                if c.get("claim_id"):
+                    all_claim_ids.add(c.get("claim_id"))
+            
+            # Get fraudulent and legitimate claim IDs from fraud analysis
+            fraudulent_ids = set()
+            legitimate_ids = set()
+            if fraud_data.get("fraud_scores"):
+                fraudulent_ids = set(fraud_data["fraud_scores"][0].get("fraudulent_claims", []))
+                legitimate_ids = set(fraud_data["fraud_scores"][0].get("legitimate_claims", []))
+            
+            # Assign risk levels using same logic as main KPIs
+            risk_by_id: Dict[str, str] = {}
+            score_by_id: Dict[str, float] = {}
+            
+            # Get the group risk level from fraud analysis
             group_risk_level = "MEDIUM"  # Default
             group_fraud_score = 0.416   # Default
-            try:
-                if fraud_data.get("fraud_scores"):
-                    grp0 = fraud_data["fraud_scores"][0]
-                    fraudulent_ids_ds = set(grp0.get("fraudulent_claims", []))
-                    legitimate_ids_ds = set(grp0.get("legitimate_claims", []))
-                    group_risk_level = grp0.get("risk_level", "MEDIUM")
-                    group_fraud_score = grp0.get("fraud_score", 0.416)
-            except Exception:
-                pass
+            if fraud_data.get("fraud_scores"):
+                grp0 = fraud_data["fraud_scores"][0]
+                group_risk_level = grp0.get("risk_level", "MEDIUM")
+                group_fraud_score = grp0.get("fraud_score", 0.416)
             
-            for rec in claims_live:
-                cid = rec.get("claim_id")
-                fraud = rec.get("fraud_analysis") or {}
-                
-                # Prioritize fraudulent/legitimate classification over existing fraud analysis
-                if cid in fraudulent_ids_ds:
+            for cid in all_claim_ids:
+                if cid in fraudulent_ids:
                     # CLAIM-001 is MEDIUM risk (first claim, needs review)
                     # CLAIM-002-010 are HIGH risk (duplicated/coordinated fraud)
                     if cid == "CLAIM-001":
-                        risk = "MEDIUM"
-                        fraud_score = group_fraud_score  # 0.416
-                        final_recommendation = "ENHANCED REVIEW REQUIRED"
+                        risk_by_id[cid] = "MEDIUM"
+                        score_by_id[cid] = group_fraud_score  # 0.416
                     else:
-                        risk = "HIGH"
-                        fraud_score = 0.8
-                        final_recommendation = "REJECT CLAIM"
-                elif cid in legitimate_ids_ds:
-                    risk = "LOW"
-                    fraud_score = 0.2
-                    final_recommendation = "APPROVE CLAIM"
-                else:
-                    # Use existing fraud analysis if not in fraudulent/legitimate lists
-                    risk = fraud.get("risk_level")
-                    fraud_score = float(fraud.get("fraud_score", 0.0) or 0.0)
-                    final_recommendation = fraud.get("final_recommendation", "")
+                        risk_by_id[cid] = "HIGH"
+                        score_by_id[cid] = 0.8
+                elif cid in legitimate_ids:
+                    risk_by_id[cid] = "LOW"
+                    score_by_id[cid] = 0.2
+            
+            # For claims not in fraudulent/legitimate lists, use existing fraud analysis
+            for rec in portal_claims:
+                cid = rec.get("claim_id")
+                if cid not in risk_by_id:  # Only assign if not already assigned above
+                    fraud = rec.get("fraud_analysis") or {}
+                    risk = (fraud.get("risk_level") or "").upper()
+                    if risk in ("HIGH", "MEDIUM", "LOW"):
+                        risk_by_id[cid] = risk
+                        try:
+                            score_by_id[cid] = float(fraud.get("fraud_score", 0.0) or 0.0)
+                        except Exception:
+                            score_by_id[cid] = 0.0
+            
+            # Finally, ensure ALL claims get assigned a risk level (default to LOW)
+            for cid in all_claim_ids:
+                if cid not in risk_by_id:
+                    risk_by_id[cid] = "LOW"
+                    score_by_id[cid] = 0.2
+            
+            # Build rows for display - prioritize portal data over dataset data
+            claims_by_id = {c.get("claim_id"): c for c in dataset_claims if c.get("claim_id")}
+            
+            for cid in all_claim_ids:
+                # Get data from portal first, fallback to dataset
+                portal_rec = next((r for r in portal_claims if r.get("claim_id") == cid), None)
+                dataset_rec = claims_by_id.get(cid, {})
                 
-                if risk in ("HIGH", "MEDIUM", "LOW"):
-                    rows.append({
-                        "claim_id": cid,
-                        "claimant_name": rec.get("claim_data", {}).get("claimant_name", ""),
-                        "accident_location": rec.get("claim_data", {}).get("accident_location", ""),
-                        "risk_level": risk,
-                        "fraud_score": fraud_score,
-                        "status": rec.get("status"),
-                        "final_recommendation": final_recommendation,
-                        "submission_time": rec.get("submission_time"),
-                    })
-
-            # Include dataset claims 001..016 from loaded fraud_data
-            try:
-                dataset_claims = fraud_data.get("claims", [])
-                if not dataset_claims and fraud_data.get("evidence_analysis"):
-                    # Fallback: synthesize entries from evidence keys
-                    dataset_claims = [{"claim_id": cid, "timestamp": None, "notifier_name": "Dataset", "location": ""}
-                                      for cid in fraud_data.get("evidence_analysis", {}).keys()]
-            except Exception:
-                dataset_claims = []
-
-            if dataset_claims:
-                ds_by_id = {c.get("claim_id"): c for c in dataset_claims if c.get("claim_id")}
-                for cid, c in ds_by_id.items():
-                    if cid in fraudulent_ids_ds:
-                        # CLAIM-001 is MEDIUM risk (first claim, needs review)
-                        # CLAIM-002-010 are HIGH risk (duplicated/coordinated fraud)
-                        if cid == "CLAIM-001":
-                            level = "MEDIUM"
-                            score_val = group_fraud_score  # 0.416
-                            final_rec = "ENHANCED REVIEW REQUIRED"
-                        else:
-                            level = "HIGH"
-                            score_val = 0.8
-                            final_rec = "REJECT CLAIM"
-                    elif cid in legitimate_ids_ds:
-                        level = "LOW"
-                        score_val = 0.2
-                        final_rec = "APPROVE CLAIM"
-                    else:
-                        # Unknown in grouping; skip or mark low
-                        level = "LOW"
-                        score_val = 0.2
-                        final_rec = "APPROVE CLAIM"
-                    rows.append({
-                        "claim_id": cid,
-                        "claimant_name": c.get("notifier_name") or "Dataset",
-                        "accident_location": c.get("location", ""),
-                        "risk_level": level,
-                        "fraud_score": score_val,
-                        "status": "Dataset",
-                        "final_recommendation": final_rec,
-                        "submission_time": c.get("timestamp"),
-                    })
+                # Use portal data if available, otherwise dataset data
+                if portal_rec:
+                    claimant_name = portal_rec.get("submitted_by", "")  # Use submitted_by field
+                    accident_location = portal_rec.get("claim_data", {}).get("accident_location", "")
+                    status = portal_rec.get("status", "")
+                    submission_time = portal_rec.get("submission_time", "")
+                else:
+                    claimant_name = dataset_rec.get("notifier_name", "")
+                    accident_location = dataset_rec.get("location", "")
+                    status = "Dataset"
+                    submission_time = dataset_rec.get("timestamp", "")
+                
+                risk = risk_by_id.get(cid, "LOW")
+                fraud_score = score_by_id.get(cid, 0.2)
+                
+                # Determine final recommendation based on risk level
+                if risk == "HIGH":
+                    final_recommendation = "REJECT CLAIM"
+                elif risk == "MEDIUM":
+                    final_recommendation = "ENHANCED REVIEW REQUIRED"
+                else:
+                    final_recommendation = "APPROVE CLAIM"
+                
+                rows.append({
+                    "claim_id": cid,
+                    "claimant_name": claimant_name,
+                    "accident_location": accident_location,
+                    "risk_level": risk,
+                    "fraud_score": fraud_score,
+                    "status": status,
+                    "final_recommendation": final_recommendation,
+                    "submission_time": submission_time,
+                })
 
             if rows:
                 df = pd.DataFrame(rows)
