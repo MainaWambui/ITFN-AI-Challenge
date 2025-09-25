@@ -266,6 +266,21 @@ class ClaimProcessor:
             st.error(f"Error loading claims_database.json: {exc}")
             self.claims_database = []
 
+    def get_historical_claims(self) -> List[Dict]:
+        """Get only historical claims (CLAIM-001 through CLAIM-016) from the database."""
+        historical_claims = []
+        for claim in self.claims_database:
+            claim_id = claim.get("claim_id", "")
+            # Extract claim number from CLAIM-XXX format
+            if claim_id.startswith("CLAIM-"):
+                try:
+                    claim_num = int(claim_id.split("-")[1])
+                    if 1 <= claim_num <= 16:  # CLAIM-001 through CLAIM-016
+                        historical_claims.append(claim)
+                except (ValueError, IndexError):
+                    continue
+        return historical_claims
+
     def save_claims_database(self) -> None:
         """Persist the current claims database to disk."""
         try:
@@ -1911,9 +1926,9 @@ class RoleBasedApp:
 
         # Filter claims based on user role
         if st.session_state.user_role == UserRole.FRAUD_ANALYST.value:
-            # Fraud analysts can see all claims
-            user_claims = self.processor.claims_database
-            st.info("🔍 Fraud Analyst View: Showing all claims in the system")
+            # Fraud analysts can see all historical claims (CLAIM-001 to CLAIM-016)
+            user_claims = self.processor.get_historical_claims()
+            st.info("🔍 Fraud Analyst View: Showing historical claims (CLAIM-001 to CLAIM-016)")
         else:
             # Regular users see their own claims by name and by national ID mapping
             user_claims = []
@@ -2217,8 +2232,8 @@ class RoleBasedApp:
 
         fraud_data = self.processor.load_fraud_analysis_data()
 
-        # Under Review section (claims currently analyzing)
-        reviewing = [c for c in self.processor.claims_database if c.get("status") == ClaimStatus.ANALYZING.value]
+        # Under Review section (claims currently analyzing) - only historical claims
+        reviewing = [c for c in self.processor.get_historical_claims() if c.get("status") == ClaimStatus.ANALYZING.value]
         if reviewing:
             st.subheader("⏳ Claims Under Review")
             rv_rows = []
@@ -2242,7 +2257,7 @@ class RoleBasedApp:
         
         # Get all claims from both sources (same logic as Fraud Report)
         dataset_claims = fraud_data.get("claims", [])
-        portal_claims = self.processor.claims_database
+        portal_claims = self.processor.get_historical_claims()  # Only show historical claims (CLAIM-001 to CLAIM-016)
         
         # Get all claim IDs from both sources for complete processing
         all_claim_ids = set()
@@ -2400,9 +2415,9 @@ class RoleBasedApp:
             # Use the same unified claim processing logic as main KPIs
             rows: List[Dict] = []
             
-            # Get all claims from both sources (same logic as main KPIs)
+            # Get all claims from both sources (same logic as main KPIs) - filtered to historical claims
             dataset_claims = fraud_data.get("claims", [])
-            portal_claims = self.processor.claims_database
+            portal_claims = self.processor.get_historical_claims()
             
             # Get all claim IDs from both sources for complete processing
             all_claim_ids = set()
@@ -2575,8 +2590,8 @@ class RoleBasedApp:
         # Fraud report tab (moved after Overview)
         with tab_report:
             st.subheader("📋 Fraud Report")
-            # Use live portal database to align with dashboard
-            claims_db = list(self.processor.claims_database)
+            # Use live portal database to align with dashboard (filtered to historical claims only)
+            claims_db = list(self.processor.get_historical_claims())
             if not claims_db:
                 st.info("No summary available.")
             else:
@@ -2597,9 +2612,9 @@ class RoleBasedApp:
                     })
  
                 # Recreate the same logic as Overview tab for consistent totals
-                # Get all claims from both sources (same logic as Overview tab)
+                # Get all claims from both sources (same logic as Overview tab) - filtered to historical claims
                 dataset_claims = fraud_data.get("claims", [])
-                portal_claims = self.processor.claims_database
+                portal_claims = self.processor.get_historical_claims()
                 
                 # Get all claim IDs from both sources for complete processing
                 all_claim_ids = set()
@@ -3831,14 +3846,15 @@ class RoleBasedApp:
         # Payout controls (Analyst-only)
         with tab_payouts:
             st.subheader("💳 Payout Controls")
-            if not self.processor.claims_database:
-                st.info("No claims available.")
+            historical_claims = self.processor.get_historical_claims()
+            if not historical_claims:
+                st.info("No historical claims available.")
             else:
-                options = [f"{c.get('claim_id')} — {c.get('status')} — {c.get('payout_status', 'UNKNOWN')}" for c in self.processor.claims_database]
+                options = [f"{c.get('claim_id')} — {c.get('status')} — {c.get('payout_status', 'UNKNOWN')}" for c in historical_claims]
                 selected = st.selectbox("Select a claim", options)
                 if selected:
                     claim_id = selected.split(" — ")[0]
-                    claim = next((c for c in self.processor.claims_database if c.get("claim_id") == claim_id), None)
+                    claim = next((c for c in historical_claims if c.get("claim_id") == claim_id), None)
                     if claim:
                         st.write(f"**Current Payout Status:** {claim.get('payout_status', 'UNKNOWN')}")
                         col_a, col_b, col_c = st.columns(3)
@@ -4662,7 +4678,7 @@ class RoleBasedApp:
                 st.markdown("---")
                 # Load datasets
                 data = self.processor.load_fraud_analysis_data()
-                claims_db = list(self.processor.claims_database)
+                claims_db = list(self.processor.get_historical_claims())  # Only show historical claims (CLAIM-001 to CLAIM-016)
                 fraud_scores = data.get("fraud_scores", [])
 
                 # Build compact context
