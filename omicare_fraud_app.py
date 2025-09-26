@@ -1896,8 +1896,11 @@ class RoleBasedApp:
                         st.warning(f"Registration validation could not be completed: {str(e)}")
                         # Continue with submission even if validation fails
 
-                    # Duplicate detection: same vehicle and same accident date already submitted
-                    duplicate = next(
+                    # Enhanced duplicate detection: check for multiple patterns
+                    duplicates = []
+                    
+                    # Pattern 1: Same vehicle and same accident date
+                    same_date_duplicate = next(
                         (
                             c for c in self.processor.claims_database
                             if c.get("claim_data", {}).get("vehicle_registration", "").strip().upper() == vehicle_registration.strip().upper()
@@ -1905,22 +1908,63 @@ class RoleBasedApp:
                         ),
                         None,
                     )
-                    if duplicate:
-                        st.error("Duplicate claim detected for this vehicle on the same date.")
-                        with st.expander("View previously filed claim details", expanded=True):
-                            col1, col2 = st.columns(2)
-                            with col1:
-                                st.write(f"**Claim ID:** {duplicate.get('claim_id')}")
-                                st.write(f"**Submitted:** {duplicate.get('submission_time', '')[:19]}")
-                                st.write(f"**Status:** {duplicate.get('status', 'N/A')}")
-                            with col2:
-                                st.write(f"**Decision:** {duplicate.get('decision_reason', 'Pending')}")
-                                st.write(f"**Vehicle:** {duplicate.get('claim_data', {}).get('vehicle_registration', '')}")
-                                st.write(f"**Accident Date:** {duplicate.get('claim_data', {}).get('accident_date', '')}")
-                            st.write("**Accident Location:** " + duplicate.get('claim_data', {}).get('accident_location', ''))
-                            st.write("**Description:**")
-                            st.write(duplicate.get('claim_data', {}).get('accident_description', ''))
-                        st.info("If you believe this is not a duplicate, please contact support before resubmitting. Call +2547000000 or email omicare@insuretechtest.com.")
+                    if same_date_duplicate:
+                        duplicates.append(("same_date", same_date_duplicate))
+                    
+                    # Pattern 2: Same vehicle and same claimant (potential coordinated fraud)
+                    same_vehicle_claims = [
+                        c for c in self.processor.claims_database
+                        if c.get("claim_data", {}).get("vehicle_registration", "").strip().upper() == vehicle_registration.strip().upper()
+                        and c.get("submitted_by", "").strip().upper() == claimant_name.strip().upper()
+                    ]
+                    if len(same_vehicle_claims) > 0:
+                        duplicates.append(("same_vehicle_claimant", same_vehicle_claims))
+                    
+                    # Pattern 3: Same vehicle with multiple recent claims (potential fraud pattern)
+                    recent_vehicle_claims = [
+                        c for c in self.processor.claims_database
+                        if c.get("claim_data", {}).get("vehicle_registration", "").strip().upper() == vehicle_registration.strip().upper()
+                    ]
+                    if len(recent_vehicle_claims) >= 3:  # Threshold for suspicious activity
+                        duplicates.append(("multiple_vehicle_claims", recent_vehicle_claims))
+                    
+                    duplicate = same_date_duplicate  # Keep for backward compatibility
+                    
+                    # Display all duplicate patterns found
+                    if duplicates:
+                        st.error("🚨 **DUPLICATE CLAIM PATTERNS DETECTED**")
+                        
+                        for pattern_type, pattern_data in duplicates:
+                            if pattern_type == "same_date":
+                                st.error("**Exact Duplicate:** Same vehicle and accident date already submitted.")
+                                with st.expander("View previously filed claim details", expanded=True):
+                                    duplicate = pattern_data
+                                    col1, col2 = st.columns(2)
+                                    with col1:
+                                        st.write(f"**Claim ID:** {duplicate.get('claim_id')}")
+                                        st.write(f"**Submitted:** {duplicate.get('submission_time', '')[:19]}")
+                                        st.write(f"**Status:** {duplicate.get('status', 'N/A')}")
+                                    with col2:
+                                        st.write(f"**Decision:** {duplicate.get('decision_reason', 'Pending')}")
+                                        st.write(f"**Vehicle:** {duplicate.get('claim_data', {}).get('vehicle_registration', '')}")
+                                        st.write(f"**Accident Date:** {duplicate.get('claim_data', {}).get('accident_date', '')}")
+                                    st.write("**Accident Location:** " + duplicate.get('claim_data', {}).get('accident_location', ''))
+                                    st.write("**Description:**")
+                                    st.write(duplicate.get('claim_data', {}).get('accident_description', ''))
+                                
+                            elif pattern_type == "same_vehicle_claimant":
+                                st.warning(f"**Suspicious Pattern:** Same vehicle and claimant with {len(pattern_data)} previous claim(s).")
+                                with st.expander(f"View {len(pattern_data)} previous claims for this vehicle", expanded=False):
+                                    for i, claim in enumerate(pattern_data[:5]):  # Show max 5 claims
+                                        st.write(f"**{i+1}. Claim ID:** {claim.get('claim_id')} | **Date:** {claim.get('claim_data', {}).get('accident_date')} | **Location:** {claim.get('claim_data', {}).get('accident_location')}")
+                                
+                            elif pattern_type == "multiple_vehicle_claims":
+                                st.warning(f"**High Risk Pattern:** Vehicle {vehicle_registration} has {len(pattern_data)} total claims (threshold: 3+).")
+                                with st.expander(f"View all {len(pattern_data)} claims for this vehicle", expanded=False):
+                                    for i, claim in enumerate(pattern_data[:10]):  # Show max 10 claims
+                                        st.write(f"**{i+1}. Claim ID:** {claim.get('claim_id')} | **Date:** {claim.get('claim_data', {}).get('accident_date')} | **Claimant:** {claim.get('submitted_by')}")
+                        
+                        st.info("🚨 **FRAUD ALERT:** Multiple duplicate patterns detected. Please contact support before resubmitting. Call +2547000000 or email omicare@insuretechtest.com.")
                         return
 
                     # Quick-win: intake risk evaluation before submission
